@@ -1,0 +1,16 @@
+{
+  "name": "swag-labs-automation",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "npx playwright test",
+    "test:api": "npx playwright test tests/api.spec.ts",
+    "test:contract": "npx playwright test tests/api-contract.spec.ts",
+    "test:headed": "npx playwright test --headed",
+    "test:debug": "npx playwright test --debug"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0",
+    "typescript": "^5.5.0"
+  }
+}
