@@ -45,7 +45,7 @@ export default class MetricsReporter implements Reporter {
 
     this.items.push({
       file: test.location.file,
-      project: result.project?.name ?? 'unknown',
+      project: test.titlePath()[0] ?? 'unknown',
       title: test.title,
       suiteName: test.parent?.title ?? '',
       status: result.status,
