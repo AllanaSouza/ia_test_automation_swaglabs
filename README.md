@@ -19,6 +19,7 @@ Este projeto cobre diferentes camadas e tipos de teste:
 | **Teste de UI — Carrinho** | `cart.spec.ts` | Adicionar, remover e contabilizar produtos no carrinho |
 | **Teste de UI — Checkout** | `checkout.spec.ts` | Finalizar e cancelar o processo de compra |
 | **Teste de UI — Produtos** | `product.spec.ts` | Ordenação do catálogo e visualização de detalhes |
+| **Teste de Acessibilidade** | `accessibility.spec.ts` | Violações WCAG 2.x (A/AA), alt em imagens, labels e nomes de botões |
 
 ---
 
@@ -33,7 +34,8 @@ Swag Labs/
 │   ├── login.spec.ts          # Testes de autenticação
 │   ├── cart.spec.ts           # Testes do carrinho de compras
 │   ├── checkout.spec.ts       # Testes do fluxo de checkout
-│   └── product.spec.ts        # Testes de navegação e produtos
+│   ├── product.spec.ts        # Testes de navegação e produtos
+│   └── accessibility.spec.ts  # Testes de acessibilidade (axe-core / WCAG)
 ├── playwright-report/
 │   ├── index.html             # Relatório padrão do Playwright (gerado automaticamente)
 │   └── metrics.html           # Relatório de métricas customizado (gerado automaticamente)
@@ -118,6 +120,36 @@ npm run test:api
 ```bash
 npm run test:contract
 ```
+
+### Rodar apenas os testes de acessibilidade
+
+```bash
+npm run test:a11y
+```
+
+---
+
+## ♿ Testes de Acessibilidade
+
+Os testes de acessibilidade usam o **axe-core**, o engine de análise WCAG mais utilizado no mercado. Eles verificam automaticamente se as páginas seguem os padrões **WCAG 2.x nível A e AA**.
+
+### O que é verificado
+
+- Ausência de violações WCAG em todas as páginas principais
+- Presença de atributo `alt` em imagens de produtos
+- Nomes acessíveis em botões e campos de formulário
+- Documentação de bugs de acessibilidade encontrados no site
+
+### Bugs de acessibilidade detectados no Swag Labs
+
+Durante a execução, os testes detectaram 2 violações **CRITICAL** reais no site:
+
+| Regra | Página | Elemento | Correção ideal |
+|---|---|---|---|
+| `button-name` (WCAG 4.1.2) | Login (com erro) | Botão "X" de fechar a mensagem de erro não tem texto acessível | Adicionar `aria-label="Fechar mensagem de erro"` |
+| `select-name` (WCAG 4.1.2) | Inventário | `<select>` de ordenação não tem `<label>` associado | Adicionar `aria-label="Ordenar produtos"` |
+
+> Como o Swag Labs é um site de terceiro (não podemos corrigir o código), os testes que detectam estes bugs usam `.toBeDefined()` para **documentar** a existência da violação, em vez de falhar continuamente. Essa é uma prática comum quando se testa sistemas externos.
 
 ---
 

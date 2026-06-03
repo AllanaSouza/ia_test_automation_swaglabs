@@ -7,9 +7,11 @@
     "test:api": "npx playwright test tests/api.spec.ts",
     "test:contract": "npx playwright test tests/api-contract.spec.ts",
     "test:headed": "npx playwright test --headed",
-    "test:debug": "npx playwright test --debug"
+    "test:debug": "npx playwright test --debug",
+    "test:a11y": "npx playwright test tests/accessibility.spec.ts"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
     "@playwright/test": "^1.44.0",
     "@types/node": "^25.9.1",
     "typescript": "^5.5.0"
