@@ -38,8 +38,8 @@ Swag Labs/
 │   └── accessibility.spec.ts  # Testes de acessibilidade (axe-core / WCAG)
 ├── playwright-report/
 │   ├── index.html             # Relatório padrão do Playwright (gerado automaticamente)
-│   └── metrics.html           # Relatório de métricas customizado (gerado automaticamente)
-├── metrics-reporter.ts        # Reporter customizado que gera o metrics.html
+│   └── metrics.html           # Relatório executivo customizado (gerado automaticamente)
+├── executive-reporter.ts      # Reporter customizado que gera o metrics.html
 ├── playwright.config.ts       # Configuração central do Playwright
 ├── tsconfig.json              # Configuração do TypeScript
 └── package.json               # Dependências e scripts do projeto
@@ -165,16 +165,16 @@ Relatório visual com detalhes de cada teste, screenshots de falhas e vídeos.
 npx playwright show-report
 ```
 
-### Relatório de métricas customizado
+### Relatório executivo customizado
 
-Painel com estatísticas da execução: total de testes, taxa de aprovação, duração média e breakdown por arquivo.
+Painel executivo completo com: cards de resumo, barra de progresso, resultados por arquivo, bugs documentados e detalhes de falhas.
 
 ```bash
-# Windows
-start playwright-report\metrics.html
+# Abre direto no browser (Windows)
+npm run report
 
-# macOS/Linux
-open playwright-report/metrics.html
+# Ou manualmente:
+start playwright-report\metrics.html
 ```
 
 ---
