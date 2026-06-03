@@ -79,4 +79,81 @@ test.describe('Sauce Demo cart flows', () => {
     // `toHaveCount` é mais preciso que `toContainText` para verificar quantidade de elementos
     await expect(page.locator('.cart_item')).toHaveCount(6);
   });
+
+  /**
+   * Teste 3: Carrinho vazio deve exibir estado adequado sem itens.
+   *
+   * Verifica o estado inicial do carrinho antes de qualquer adição.
+   * Em e-commerces, a tela de carrinho vazio normalmente exibe uma mensagem
+   * convidando o usuário a continuar comprando.
+   *
+   * Este teste garante que o carrinho não exibe itens fantasmas ao ser acessado
+   * sem nada adicionado — comportamento importante para a confiança do usuário.
+   */
+  test('should show empty cart when no products have been added', async ({ page }) => {
+    await login(page);
+
+    // Navega direto para o carrinho sem adicionar nada
+    await page.click('.shopping_cart_link');
+    await expect(page).toHaveURL(/cart.html/);
+
+    // Não deve haver nenhum item no carrinho
+    await expect(page.locator('.cart_item')).toHaveCount(0);
+
+    // O badge não deve estar visível quando o carrinho está vazio
+    await expect(page.locator('.shopping_cart_badge')).toBeHidden();
+  });
+
+  /**
+   * Teste 4: Remover produto diretamente da página do carrinho.
+   *
+   * O usuário pode remover itens tanto na listagem de produtos quanto dentro do carrinho.
+   * Este teste garante que o botão "Remove" dentro do carrinho funciona corretamente.
+   */
+  test('should remove product directly from the cart page', async ({ page }) => {
+    await login(page);
+
+    // Adiciona dois produtos
+    await page.click('button[data-test="add-to-cart-sauce-labs-backpack"]');
+    await page.click('button[data-test="add-to-cart-sauce-labs-bike-light"]');
+    await expect(page.locator('.shopping_cart_badge')).toHaveText('2');
+
+    // Navega para o carrinho
+    await page.click('.shopping_cart_link');
+    await expect(page.locator('.cart_item')).toHaveCount(2);
+
+    // Remove apenas o Backpack de dentro do carrinho
+    await page.click('button[data-test="remove-sauce-labs-backpack"]');
+
+    // Deve sobrar apenas 1 item (Bike Light)
+    await expect(page.locator('.cart_item')).toHaveCount(1);
+    await expect(page.locator('.cart_list')).toContainText('Sauce Labs Bike Light');
+    await expect(page.locator('.cart_list')).not.toContainText('Sauce Labs Backpack');
+
+    // Badge deve atualizar para "1"
+    await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
+  });
+
+  /**
+   * Teste 5: Botão "Continue Shopping" deve retornar à listagem de produtos.
+   *
+   * Valida a navegação de volta ao inventário a partir do carrinho,
+   * permitindo que o usuário adicione mais produtos sem perder o carrinho atual.
+   */
+  test('should navigate back to inventory via continue shopping button', async ({ page }) => {
+    await login(page);
+    await page.click('button[data-test="add-to-cart-sauce-labs-backpack"]');
+    await page.click('.shopping_cart_link');
+
+    await expect(page).toHaveURL(/cart.html/);
+
+    // Clica no botão "Continue Shopping"
+    await page.click('[data-test="continue-shopping"]');
+
+    // Deve retornar para o inventário
+    await expect(page).toHaveURL(/inventory.html/);
+
+    // O produto ainda deve estar no carrinho (badge visível)
+    await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
+  });
 });

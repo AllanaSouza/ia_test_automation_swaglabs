@@ -104,4 +104,99 @@ test.describe('Sauce Demo checkout flows', () => {
     // O produto deve continuar no carrinho após o cancelamento
     await expect(page.locator('.cart_list')).toContainText('Sauce Labs Backpack');
   });
+
+  /**
+   * Teste 3: Submeter o formulário vazio deve exibir erro de validação.
+   *
+   * Campos obrigatórios sem preenchimento não devem avançar o checkout.
+   * O sistema deve fornecer feedback claro ao usuário sobre o que está faltando.
+   *
+   * Cenário de validação crítico: sem esta verificação, um usuário poderia
+   * avançar sem dados de entrega, causando erros no processamento do pedido.
+   */
+  test('should show error when submitting checkout form without required fields', async ({ page }) => {
+    await login(page);
+    await page.click('button[data-test="add-to-cart-sauce-labs-backpack"]');
+    await page.click('.shopping_cart_link');
+    await page.click('button[data-test="checkout"]');
+
+    // Clica em "Continue" sem preencher nenhum campo
+    await page.click('[data-test="continue"]');
+
+    // O sistema deve exibir uma mensagem de erro
+    // O Swag Labs valida o firstName primeiro — essa é a mensagem esperada
+    await expect(page.locator('[data-test="error"]')).toContainText('First Name is required');
+
+    // A URL NÃO deve avançar para step-two — permanece em step-one
+    await expect(page).toHaveURL(/checkout-step-one.html/);
+  });
+
+  /**
+   * Teste 4: Submeter formulário só com o primeiro campo preenchido.
+   *
+   * Valida que cada campo obrigatório é verificado individualmente.
+   * O Swag Labs valida em sequência: firstName → lastName → postalCode.
+   */
+  test('should show error when last name is missing', async ({ page }) => {
+    await login(page);
+    await page.click('button[data-test="add-to-cart-sauce-labs-backpack"]');
+    await page.click('.shopping_cart_link');
+    await page.click('button[data-test="checkout"]');
+
+    // Preenche apenas o primeiro nome
+    await page.fill('[data-test="firstName"]', 'John');
+    await page.click('[data-test="continue"]');
+
+    // Deve exigir o sobrenome
+    await expect(page.locator('[data-test="error"]')).toContainText('Last Name is required');
+  });
+
+  /**
+   * Teste 5: Submeter formulário sem CEP deve exibir erro específico.
+   *
+   * Complementa os testes anteriores cobrindo o terceiro campo obrigatório.
+   */
+  test('should show error when postal code is missing', async ({ page }) => {
+    await login(page);
+    await page.click('button[data-test="add-to-cart-sauce-labs-backpack"]');
+    await page.click('.shopping_cart_link');
+    await page.click('button[data-test="checkout"]');
+
+    // Preenche nome e sobrenome mas não o CEP
+    await page.fill('[data-test="firstName"]', 'John');
+    await page.fill('[data-test="lastName"]', 'Doe');
+    await page.click('[data-test="continue"]');
+
+    // Deve exigir o CEP
+    await expect(page.locator('[data-test="error"]')).toContainText('Postal Code is required');
+  });
+
+  /**
+   * Teste 6: O resumo do pedido (step-two) deve exibir o total correto.
+   *
+   * Valida que o valor total exibido no resumo é consistente com os itens adicionados.
+   * Em e-commerces, erros de cálculo de preço são críticos e podem gerar prejuízo.
+   *
+   * O Swag Labs usa valores fixos — verificamos que o campo de total está presente
+   * e contém um valor monetário válido (não está zerado ou vazio).
+   */
+  test('should display order total on checkout step two', async ({ page }) => {
+    await login(page);
+    await page.click('button[data-test="add-to-cart-sauce-labs-backpack"]');
+    await page.click('.shopping_cart_link');
+    await page.click('button[data-test="checkout"]');
+    await page.fill('[data-test="firstName"]', 'John');
+    await page.fill('[data-test="lastName"]', 'Doe');
+    await page.fill('[data-test="postalCode"]', '12345');
+    await page.click('[data-test="continue"]');
+
+    await expect(page).toHaveURL(/checkout-step-two.html/);
+
+    // O total deve estar visível e conter um valor monetário (símbolo $)
+    const totalLabel = page.locator('.summary_total_label');
+    await expect(totalLabel).toBeVisible();
+    const totalText = await totalLabel.innerText();
+    expect(totalText).toContain('$');
+    expect(totalText).not.toBe('Total: $0.00'); // total não pode ser zero com item no carrinho
+  });
 });
