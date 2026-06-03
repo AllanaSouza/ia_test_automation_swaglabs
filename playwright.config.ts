@@ -30,7 +30,7 @@ export default defineConfig({
    * - 'html'          → gera um relatório visual em HTML na pasta playwright-report/
    * - metrics-reporter → reporter customizado deste projeto (gera metrics.html)
    */
-  reporter: [['list'], ['html', { open: 'never' }], ['./metrics-reporter.ts']],
+  reporter: [['list'], ['html', { open: 'never' }], ['./executive-reporter.ts']],
 
   // Configurações globais aplicadas a todos os testes
   use: {

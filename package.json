@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "test": "npx playwright test",
-    "test:api": "npx playwright test tests/api.spec.ts",
+    "test:api": "npx playwright test tests/api.spec.ts tests/api-contract.spec.ts",
     "test:contract": "npx playwright test tests/api-contract.spec.ts",
     "test:headed": "npx playwright test --headed",
     "test:debug": "npx playwright test --debug",
-    "test:a11y": "npx playwright test tests/accessibility.spec.ts"
+    "test:a11y": "npx playwright test tests/accessibility.spec.ts",
+    "report": "start playwright-report\\metrics.html"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
